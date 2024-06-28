@@ -1,0 +1,31 @@
+#suite part2_
+
+#test part2_1
+test_grep("Hello ./tests_check/files/file1.txt");
+
+#test part2_2
+test_grep("Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part2_3
+test_grep("-i HELLO ./tests_check/files/file1.txt");
+
+#test part2_4
+test_grep("-i HELLO ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part2_5
+test_grep("-v Hello ./tests_check/files/file1.txt");
+
+#test part2_6
+test_grep("-l Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part2_7
+test_grep("-c Hello ./tests_check/files/file1.txt");
+
+#test part2_8
+test_grep("-n Hello ./tests_check/files/file1.txt");
+
+#test part2_9
+test_grep("-n Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part2_10
+test_grep("-e Hello -e Again ./tests_check/files/file1.txt");

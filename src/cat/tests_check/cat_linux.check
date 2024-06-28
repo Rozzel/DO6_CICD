@@ -1,0 +1,25 @@
+#suite cat_linux
+
+#test cat_linux1
+// Проверка визуализации табуляций как "^I".
+test_cat("-T");
+
+#test cat_linux2
+// Добавление "$" в конец каждой строки.
+test_cat("-E");
+
+#test cat_linux3
+// Визуализация непечатаемых и табуляций.
+test_cat("-vT");
+
+#test cat_linux4
+// Нумерация всех строк файла.
+test_cat("--number");
+
+#test cat_linux5
+// Сжатие множественных пустых строк.
+test_cat("--squeeze-blank");
+
+#test cat_linux6
+// Нумерация только непустых строк.
+test_cat("--number-nonblank");

@@ -1,0 +1,308 @@
+default:
+  image: ubuntu:22.04
+  before_script:
+    - apt update && apt install -y make gcc lcov check valgrind cppcheck clang-format doxygen graphviz flawfinder curl
+    - apt install -y python3 python3-pip
+    - pip3 install lizard jinja2
+
+stages:
+  - docs
+  - style
+  - analysis
+  - build
+  - test
+  - deploy
+  - notify
+
+deploy:
+  stage: deploy
+  before_script:
+    - apt update && apt install -y openssh-client
+  needs:
+    - build-cat
+    - build-grep
+  dependencies:
+    - build-cat
+    - build-grep
+  script:
+    - bash deploy.sh
+  only:
+    - develop
+  when: manual
+  allow_failure: false
+
+test-gcov-grep:
+  stage: test
+  before_script:
+    - apt update && apt install -y make gcc lcov check
+  needs:
+    - build-grep
+  artifacts:
+    paths:
+      - src/grep/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/grep/
+    - make test-gcov_ci
+    - mkdir -p artifacts/gcov
+    - cp -r ./report/* artifacts/gcov/
+
+test-gcov-cat:
+  stage: test
+  before_script:
+    - apt update && apt install -y make gcc lcov check
+  needs:
+    - build-cat
+  artifacts:
+    paths:
+      - src/cat/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/cat/
+    - make test-gcov_ci
+    - mkdir -p artifacts/gcov
+    - cp -r ./report/* artifacts/gcov/
+
+test-cppcheck-cat:
+  stage: analysis
+  before_script:
+    - apt update && apt install -y make cppcheck
+  artifacts:
+    paths:
+      - src/cat/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/cat/
+    - make test-cppcheck_html
+    - make test-cppcheck_ci
+    - mkdir -p artifacts/cppcheck
+    - cp -r ./report/cppcheck/* artifacts/cppcheck/
+  allow_failure: true
+
+test-cppcheck-grep:
+  stage: analysis
+  before_script:
+    - apt update && apt install -y make cppcheck
+  artifacts:
+    paths:
+      - src/grep/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/grep/
+    - make test-cppcheck_html
+    - make test-cppcheck_ci
+    - mkdir -p artifacts/cppcheck
+    - cp -r ./report/cppcheck/* artifacts/cppcheck/
+  allow_failure: true
+
+test-lizard-grep:
+  stage: analysis
+  before_script:
+    - apt update && apt install -y make python3 python3-pip
+    - pip3 install lizard jinja2
+  artifacts:
+    paths:
+      - src/grep/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/grep/
+    - make test-lizard
+    - mkdir -p artifacts
+    - cp report/lizard.html artifacts/
+  allow_failure: true
+
+test-lizard-cat:
+  stage: analysis
+  before_script:
+    - apt update && apt install -y make python3 python3-pip
+    - pip3 install lizard jinja2
+  artifacts:
+    paths:
+      - src/cat/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/cat/
+    - make test-lizard
+    - mkdir -p artifacts
+    - cp report/lizard.html artifacts/
+  allow_failure: true
+
+test-flawfinder-grep:
+  stage: analysis
+  before_script:
+    - apt update && apt install -y make flawfinder
+  artifacts:
+    paths:
+      - src/grep/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/grep/
+    - make test-flawfinder
+    - mkdir -p artifacts
+    - cp report/flawfinder.html artifacts/
+  allow_failure: true
+
+test-flawfinder-cat:
+  stage: analysis
+  before_script:
+    - apt update && apt install -y make flawfinder
+  artifacts:
+    paths:
+      - src/cat/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/cat/
+    - make test-flawfinder
+    - mkdir -p artifacts
+    - cp report/flawfinder.html artifacts/
+  allow_failure: true
+
+docs-cat:
+  stage: docs
+  before_script:
+    - apt update && apt install -y make doxygen graphviz
+  artifacts:
+    paths:
+      - src/cat/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/cat/
+    - make docs
+    - mkdir -p artifacts/docs
+    - cp -r ./docs/html/* artifacts/docs/
+  allow_failure: true
+
+docs-grep:
+  stage: docs
+  before_script:
+    - apt update && apt install -y make doxygen graphviz
+  artifacts:
+    paths:
+      - src/grep/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/grep/
+    - make docs
+    - mkdir -p artifacts/docs
+    - cp -r ./docs/html/* artifacts/docs/
+  allow_failure: true
+
+test-valgrind-cat:
+  stage: test
+  needs:
+    - build-cat
+  script:
+    - cd src/cat/
+    - make test-valgrind_ci
+
+test-valgrind-grep:
+  stage: test
+  needs:
+    - build-grep
+  script:
+    - cd src/grep/
+    - make test-valgrind_ci
+
+test-check-cat:
+  stage: test
+  needs:
+    - build-cat
+  script:
+    - cd src/cat/
+    - make test
+
+test-bash-cat:
+  before_script:
+    - apt update && apt install -y make gcc
+  stage: test
+  needs:
+    - build-cat
+  script:
+    - cd src/cat/
+    - make test-bash
+
+test-check-grep:
+  stage: test
+  needs:
+    - build-grep
+  script:
+    - cd src/grep/
+    - make test
+
+test-bash-grep:
+  before_script:
+    - apt update && apt install -y make gcc
+  stage: test
+  needs:
+    - build-grep
+  script:
+    - cd src/grep/
+    - make test-bash
+
+style-cat:
+  before_script:
+    - apt update && apt install -y make clang-format
+  stage: style
+  script:
+    - cd src/cat/
+    - make test-style_ci
+
+style-grep:
+  before_script:
+    - apt update && apt install -y make clang-format
+  stage: style
+  script:
+    - cd src/grep/
+    - make test-style_ci
+
+build-cat:
+  stage: build
+  before_script:
+    - apt update && apt install -y make gcc
+  needs:
+    - style-cat
+  artifacts:
+    paths:
+      - src/cat/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/cat/
+    - make s21_cat
+    - mkdir -p artifacts
+    - cp s21_cat artifacts
+
+build-grep:
+  stage: build
+  before_script:
+    - apt update && apt install -y make gcc
+  needs:
+    - style-grep
+  artifacts:
+    paths:
+      - src/grep/artifacts
+    expire_in: 30 days
+  script:
+    - cd src/grep/
+    - make s21_grep
+    - mkdir -p artifacts
+    - cp s21_grep artifacts/
+
+notify-success:
+  stage: notify
+  before_script:
+    - apt update && apt install -y curl
+  script:
+    - bash notify_telegram.sh success
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop"'
+      when: on_success
+
+notify-failure:
+  stage: notify
+  before_script:
+    - apt update && apt install -y curl
+  script:
+    - bash notify_telegram.sh failure
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop"'
+      when: on_failure

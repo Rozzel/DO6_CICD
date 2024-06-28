@@ -1,0 +1,102 @@
+#include <unistd.h>
+
+#include "grep.h"
+
+/** @cond */
+int s21_grep(int argc, char** argv) {
+  int errorCode = NO_RESULTS;
+
+  if (argc > 2) {
+    Flags options = {0};
+
+    char pattern[SIZE] = {0};
+    int optionSymbol = 0;
+    char *optstring = "violnce:f:sh?";
+
+    while (-1 != (optionSymbol = getopt_long(argc, argv, optstring, 0, NULL))) {
+      errorCode = init_struct(&options, optionSymbol, pattern);
+    }
+
+    if ((options.e || options.f) && (argc < 4)) {
+      errorCode = ERROR;
+    }
+
+    if (ERROR != errorCode) {
+      executor((const char **)argv, pattern, &options);
+    }
+  }
+
+  return errorCode;
+}
+/** @endcond */
+
+/**
+ * @brief Клонирует строку.
+ *
+ * Функция выделяет память под новую строку того же размера, что и s, копирует в неё содержимое s, включая терминальный нулевой символ, и возвращает указатель на новую строку.
+ * @param s Указатель на строку, которую необходимо склонировать.
+ * @return Указатель на новую строку в случае успеха или NULL, если не удалось выделить память.
+ */
+char* s21_strdup(const char* s) {
+  size_t len = strlen(s) + 1;
+  char* new = malloc(len);
+  if (new == NULL) return NULL;
+  memcpy(new, s, len);
+  return new;
+}
+
+void test_grep(const char* input) {
+  const char* resultS21 = "temp_s21.txt";
+  const char* resultOrig = "temp_orig.txt";
+
+  char* argv[64];
+  int argc = 1;
+  argv[0] = "./s21_grep";
+
+  // Дублируем входную строку, чтобы избежать изменения оригинала
+  char* inputCopy = s21_strdup(input);
+
+  // Разделяем входную строку на флаги и пути к файлам
+  char* token = strtok(inputCopy, " ");
+  int isLimitReached = 0;
+  const int maxArgs = 63;
+  while (token && !isLimitReached) {
+    argv[argc++] = token;
+    token = strtok(NULL, " ");
+    // Ограничение на количество аргументов
+    if (argc >= maxArgs) {
+      isLimitReached = 1;
+    }
+  }
+
+  argv[argc] = NULL;
+
+  (void)freopen(resultS21, "w", stdout);
+  s21_grep(argc, argv);
+  fclose(stdout);
+
+  // Формируем команду для оригинального grep
+  char cmd_orig[1024] = "grep ";
+  for (int i = 1; i < argc; i++) {
+    // Безопасное добавление аргументов в строку команды
+    strncat(cmd_orig, argv[i], sizeof(cmd_orig) - strlen(cmd_orig) - 2);
+    // Добавляем пробел между аргументами
+    strncat(cmd_orig, " ", sizeof(cmd_orig) - strlen(cmd_orig) - 1);
+  }
+  // Добавляем перенаправление вывода и имя файла результата
+  snprintf(cmd_orig + strlen(cmd_orig), sizeof(cmd_orig) - strlen(cmd_orig), "> %s", resultOrig);
+
+  system(cmd_orig);
+
+  // Сравниваем результаты
+  char cmd_diff[1024];
+  snprintf(cmd_diff, sizeof(cmd_diff), "diff %s %s", resultS21, resultOrig);
+  int diff_result = system(cmd_diff);
+  ck_assert_msg(diff_result == 0, "Outputs of s21_grep and original grep are different");
+
+  unlink(resultS21);
+  unlink(resultOrig);
+
+  // Освобождаем память inputCopy после всех операций
+  free(inputCopy);
+}

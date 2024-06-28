@@ -1,0 +1,100 @@
+#suite part4_
+
+#test part4_1
+test_grep("-iv Hello ./tests_check/files/file1.txt");
+
+#test part4_2
+test_grep("-in Hello ./tests_check/files/file1.txt");
+
+#test part4_3
+test_grep("-ce Hello ./tests_check/files/file1.txt");
+
+#test part4_4
+test_grep("-c -e Hello ./tests_check/files/file1.txt");
+
+#test part4_5
+test_grep("-nivh Hello ./tests_check/files/file1.txt");
+
+#test part4_6
+test_grep("-ie Hello ./tests_check/files/file1.txt");
+
+#test part4_7
+test_grep("-ne Hello ./tests_check/files/file1.txt");
+
+#test part4_8
+test_grep("-o -e Hello ./tests_check/files/file1.txt");
+
+#test part4_9
+test_grep("-cs Hello ./tests_check/files/file1.txt");
+
+#test part4_10
+test_grep("-vn Hello ./tests_check/files/file1.txt");
+
+#test part4_11
+test_grep("-io Hello ./tests_check/files/file1.txt");
+
+#test part4_12
+test_grep("-sl Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part4_13
+test_grep("-oh Hello ./tests_check/files/file1.txt");
+
+#test part4_14
+test_grep("-ho Hello ./tests_check/files/file1.txt");
+
+#test part4_15
+test_grep("-hf ./tests_check/files/file3.txt ./tests_check/files/file1.txt");
+
+#test part4_16
+test_grep("-no Hello ./tests_check/files/file1.txt");
+
+#test part4_17
+test_grep("-nf ./tests_check/files/file3.txt ./tests_check/files/file1.txt");
+
+#test part4_18
+test_grep("-nh Hello ./tests_check/files/file1.txt");
+
+#test part4_19
+test_grep("-lo Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part4_20
+test_grep("-lf ./tests_check/files/file3.txt ./tests_check/files/file1.txt");
+
+#test part4_21
+test_grep("-lh Hello ./tests_check/files/file1.txt");
+
+#test part4_22
+test_grep("-ln Hello ./tests_check/files/file1.txt");
+
+#test part4_23
+test_grep("-co Hello ./tests_check/files/file1.txt");
+
+#test part4_24
+test_grep("-vf ./tests_check/files/file3.txt ./tests_check/files/file1.txt");
+
+#test part4_25
+test_grep("-ch Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part4_26
+test_grep("-ic Hello ./tests_check/files/file1.txt");
+
+#test part4_27
+test_grep("-il Hello ./tests_check/files/file1.txt");
+
+#test part4_28
+test_grep("-ih Hello ./tests_check/files/file1.txt");
+
+#test part4_29
+test_grep("-if ./tests_check/files/file3.txt ./tests_check/files/file1.txt");
+
+#test part4_30
+test_grep("-vc Hello ./tests_check/files/file1.txt");
+
+#test part4_31
+test_grep("-vl Hello ./tests_check/files/file1.txt");
+
+#test part4_32
+test_grep("-vh Hello ./tests_check/files/file1.txt");
+
+#test part4_33
+test_grep("-cn Hello ./tests_check/files/file1.txt");

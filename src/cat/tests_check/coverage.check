@@ -1,0 +1,10 @@
+#suite coverage
+
+#test coverage1
+// Функция option_s корректно обрабатывает последовательности переносов строк.
+char *pThisSymbol = "\n";
+char previous_simbol = '\n';
+int consecutiveLineBreaks = 2;
+int pIsItNull = 0;
+option_s(pThisSymbol, previous_simbol, consecutiveLineBreaks, &pIsItNull);
+ck_assert_int_eq(pIsItNull, 1);

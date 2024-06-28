@@ -1,0 +1,13 @@
+#suite part3_
+
+#test part3_1
+test_grep("-h Hello ./tests_check/files/file1.txt ./tests_check/files/file2.txt");
+
+#test part3_2
+test_grep("-s Hello ./tests_check/files/file1.txt");
+
+#test part3_3
+test_grep("-f ./tests_check/files/file3.txt ./tests_check/files/file1.txt");
+
+#test part3_4
+test_grep("-o Hello ./tests_check/files/file1.txt");
